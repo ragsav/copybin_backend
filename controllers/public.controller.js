@@ -35,7 +35,7 @@ exports.generateLink = (req, res) => {
             var password_cipher = crypto.createCipheriv('aes-256-cbc',passwordstring,ivstring);  
             encodedText = password_cipher.update(text, 'utf8', 'hex') + password_cipher.final('hex');
         }else{
-            var rules_unfollowed = password.validate(password, { list: true })
+            var rules_unfollowed = passwordSchema.validate(password, { list: true })
             return res.json({
                 success:false,
                 message:rules_unfollowed
