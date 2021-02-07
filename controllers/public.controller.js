@@ -17,12 +17,25 @@ passwordSchema
 .has().not().symbols()                                  
 .has().not().spaces();
 
+const base_url = "https://copybinback.herokuapp.com/api/public/tapLink/";
 const iv = "whfowihohrrovhhvjqsvhdjjadsllv"
 const key = "wlklncwlcnlbvvlrnlnvlkevlsnskvbevldnlsnlndlvvnlsbvevlnlnsv"
+const link_key = "wjebcbwcbkweblkcnovldheojlkbwrro";
 var keystring = crypto.createHash('sha256').update(String(key)).digest('base64').substr(0, 32);
+var linkKeyString = crypto
+  .createHash("sha256")
+  .update(String(link_key))
+  .digest("base64")
+  .substr(0, 32);
 var ivstring = iv.toString('hex').slice(0, 16);
 var default_cipher = crypto.createCipheriv('aes-256-cbc',keystring,ivstring);  
 var default_decipher = crypto.createDecipheriv('aes-256-cbc',keystring,ivstring);
+var link_cipher = crypto.createCipheriv("aes-256-cbc", linkKeyString, ivstring);
+var link_decipher = crypto.createDecipheriv(
+  "aes-256-cbc",
+  linkKeyString,
+  ivstring
+);
 
 
 
@@ -63,16 +76,21 @@ exports.generateLink = (req, res) => {
                 message:err
             })
         }else{
+            var encodedLink =
+              link_cipher.update(link._id, "utf8", "hex") +
+              link_cipher.final("hex");
             return res.json({
-                success: true,
-                url:link._id,
-            })
+              success: true,
+              url: base_url + encodedLink,
+            });
         }
     });
   };
 
 exports.tapLink = (req,res) =>{
-    const tid = req.params.tid
+    const tid =
+      link_decipher.update(req.params.tid, "hex", "utf8") +
+      link_decipher.final("utf8");
     console.log(tid)
     text_expiry.findOne({
         textLink:tid,
@@ -109,7 +127,10 @@ exports.tapLink = (req,res) =>{
       });
 }
   exports.openLinkWithPassword = (req, res) => {
-    const {tid,password} = req.body
+    const { tid_req, password } = req.body;
+    const tid =
+      link_decipher.update(tid_req, "hex", "utf8") +
+      link_decipher.final("utf8");
     var passwordstring = crypto.createHash('sha256').update(String(password)).digest('base64').substr(0, 32);
     var password_decipher = crypto.createDecipheriv('aes-256-cbc',passwordstring,ivstring);
     textEntry.findOne({_id:tid,password:password}).exec((err,text_entry)=>{
