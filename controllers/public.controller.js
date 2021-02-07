@@ -27,15 +27,10 @@ var linkKeyString = crypto
   .update(String(link_key))
   .digest("base64")
   .substr(0, 32);
-var ivstring = iv.toString('hex').slice(0, 16);
-var default_cipher = crypto.createCipheriv('aes-256-cbc',keystring,ivstring);  
-var default_decipher = crypto.createDecipheriv('aes-256-cbc',keystring,ivstring);
-var link_cipher = crypto.createCipheriv("aes-256-cbc", linkKeyString, ivstring);
-var link_decipher = crypto.createDecipheriv(
-  "aes-256-cbc",
-  linkKeyString,
-  ivstring
-);
+var ivstring = iv.toString("hex").slice(0, 16);
+  
+
+
 
 
 
@@ -56,6 +51,11 @@ exports.generateLink = (req, res) => {
             })
         }    
     }else{
+        var default_cipher = crypto.createCipheriv(
+          "aes-256-cbc",
+          keystring,
+          ivstring
+        );
         encodedText = default_cipher.update(text,'utf8','hex')+default_cipher.final('hex');
     }
     let timeObject = new Date();
@@ -77,6 +77,11 @@ exports.generateLink = (req, res) => {
                 message:err
             })
         }else{
+            var link_cipher = crypto.createCipheriv(
+              "aes-256-cbc",
+              linkKeyString,
+              ivstring
+            );
             var encodedLink =
               link_cipher.update(link._id.toString(), "utf8", "hex") +
               link_cipher.final("hex");
@@ -89,6 +94,12 @@ exports.generateLink = (req, res) => {
   };
 
 exports.tapLink = (req,res) =>{
+    var link_decipher = crypto.createDecipheriv(
+      "aes-256-cbc",
+      linkKeyString,
+      ivstring
+    );
+
     const tid =
       link_decipher.update(req.params.tid, "hex", "utf8") +
       link_decipher.final("utf8");
@@ -101,6 +112,11 @@ exports.tapLink = (req,res) =>{
             message: "please enter password",
           });
         } else {
+            var default_decipher = crypto.createDecipheriv(
+              "aes-256-cbc",
+              keystring,
+              ivstring
+            );
           decodedText =
             default_decipher.update(text.encodedText, "hex", "utf8") +
             default_decipher.final("utf8");
@@ -119,6 +135,12 @@ exports.tapLink = (req,res) =>{
     });
 }
   exports.openLinkWithPassword = (req, res) => {
+      var link_decipher = crypto.createDecipheriv(
+        "aes-256-cbc",
+        linkKeyString,
+        ivstring
+      );
+
     const { tid_req, password } = req.body;
     const tid =
       link_decipher.update(tid_req, "hex", "utf8") +
