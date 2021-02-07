@@ -77,7 +77,7 @@ exports.generateLink = (req, res) => {
             })
         }else{
             var encodedLink =
-              link_cipher.update(link._id, "utf8", "hex") +
+              link_cipher.update(link._id.toString(), "utf8", "hex") +
               link_cipher.final("hex");
             return res.json({
               success: true,
@@ -92,39 +92,30 @@ exports.tapLink = (req,res) =>{
       link_decipher.update(req.params.tid, "hex", "utf8") +
       link_decipher.final("utf8");
     console.log(tid)
-    text_expiry.findOne({
-        textLink:tid,
-      }).exec((err, text_entry) => {
-        
-        if (text_entry&&!err) {
-            textEntry.findOne({_id:text_entry.textLink}).exec((err,text)=>{
-                    if(!err&&text){
-                        if(text.isPassword){
-                            return res.json({
-                                "success":true,
-                                "message":"please enter password"
-                            });
-                        }else{
-                            decodedText = default_decipher.update(text.encodedText, 'hex', 'utf8') + default_decipher.final('utf8');
-                            return res.json({
-                                success:true,
-                                message:decodedText
-                            });
-                        }
-                    }else{
-                        return res.json({
-                            success:false,
-                            message:"The document you are trying to access may have been expired"
-                        });
-                    }
-                })
-        }else{
-            return res.json({
-                success:false,
-                message:"The document you are trying to access may have been expired"
-            });
+    textEntry.findOne({ _id: tid }).exec((err, text) => {
+      if (!err && text) {
+        if (text.isPassword) {
+          return res.json({
+            success: true,
+            message: "please enter password",
+          });
+        } else {
+          decodedText =
+            default_decipher.update(text.encodedText, "hex", "utf8") +
+            default_decipher.final("utf8");
+          return res.json({
+            success: true,
+            message: decodedText,
+          });
         }
-      });
+      } else {
+        return res.json({
+          success: false,
+          message:
+            "The document you are trying to access may have been expired",
+        });
+      }
+    });
 }
   exports.openLinkWithPassword = (req, res) => {
     const { tid_req, password } = req.body;
