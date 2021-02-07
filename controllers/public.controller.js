@@ -41,6 +41,7 @@ var link_decipher = crypto.createDecipheriv(
 
 exports.generateLink = (req, res) => {
     const {text,expiry,isPassword,password} = req.body
+    console.log(req.body);
     var encodedText
     if(isPassword){
         if(passwordSchema.validate(password)){
