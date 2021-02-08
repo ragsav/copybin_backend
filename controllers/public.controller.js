@@ -160,19 +160,21 @@ const tid2 =
       if (!err && text_entry) {
         if ((text_entry.isPassword&&text_entry.password===password)||(text_entry.isPassword===false)) {
           text_entry.text=encodedText
-          textEntry.updateOne({_id:tid2},text_entry).exec((err,updated_entry)=>{
-              if(!err&&updated_entry){
-                  return res.json({
-                    success: true,
-                    message: "Updated text",
-                  });
-              }else{
-                  return res.json({
-                    success: false,
-                    message: "Something went wrong",
-                  });
+          textEntry
+            .updateOne({ _id: tid2 }, { encodedText })
+            .exec((err, updated_entry) => {
+              if (!err && updated_entry) {
+                return res.json({
+                  success: true,
+                  message: "Updated text",
+                });
+              } else {
+                return res.json({
+                  success: false,
+                  message: "Something went wrong",
+                });
               }
-          })
+            });
         }
         else{
             return res.json({
@@ -262,7 +264,7 @@ exports.tapLink = (req,res) =>{
 
     const tid2 =
       link_decipher.update(tid, "hex", "utf8") + link_decipher.final("utf8");
-    console.log(tid);
+    console.log(tid2);
     var passwordstring = crypto
       .createHash("sha256")
       .update(String(password))
