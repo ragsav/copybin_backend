@@ -26,7 +26,7 @@ if (process.env.NODE_ENV === "development") {
 
   app.use(
     cors({
-      origin: process.env.CU,
+      origin: process.env.CLIENT_URL,
     })
   );
 
