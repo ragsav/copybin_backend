@@ -135,13 +135,13 @@ exports.updateLink = (req, res) => {
     { _id: tid, password: password, isPassword: true, editable: true },
     { encodedText: "" },
     function (err, docs) {
-      if (err) {
-        console.log(err);
-      } else {
+      if (!err && docs) {
         return res.json({
           success: true,
           message: "Text updated",
         });
+      } else {
+        console.log(err);
       }
     }
   );
@@ -149,16 +149,20 @@ exports.updateLink = (req, res) => {
     { _id: tid, isPassword: false, editable: true },
     { encodedText: "" },
     function (err, docs) {
-      if (err) {
-        console.log(err);
-      } else {
+      if (!err && docs) {
         return res.json({
           success: true,
           message: "Text updated",
         });
+      } else {
+        console.log(err);
       }
     }
   );
+  return res.json({
+    success: false,
+    message: "Text not editable",
+  });
 };
 
 
