@@ -141,6 +141,10 @@ exports.updateLink = (req, res) => {
           message: "Text updated",
         });
       } else {
+          return res.json({
+            success: false,
+            message: err,
+          });
         console.log(err);
       }
     }
@@ -155,6 +159,10 @@ exports.updateLink = (req, res) => {
           message: "Text updated",
         });
       } else {
+          return res.json({
+            success: false,
+            message: err,
+          });
         console.log(err);
       }
     }
@@ -208,35 +216,46 @@ exports.tapLink = (req,res) =>{
     });
 }
   exports.openLinkWithPassword = (req, res) => {
-      var link_decipher = crypto.createDecipheriv(
-        "aes-256-cbc",
-        linkKeyString,
-        ivstring
-      );
+    var link_decipher = crypto.createDecipheriv(
+      "aes-256-cbc",
+      linkKeyString,
+      ivstring
+    );
 
-    const { tid_req, password } = req.body;
     const tid =
-      link_decipher.update(tid_req, "hex", "utf8") +
+      link_decipher.update(req.params.tid, "hex", "utf8") +
       link_decipher.final("utf8");
-    var passwordstring = crypto.createHash('sha256').update(String(password)).digest('base64').substr(0, 32);
-    var password_decipher = crypto.createDecipheriv('aes-256-cbc',passwordstring,ivstring);
-    textEntry.findOne({_id:tid,password:password}).exec((err,text_entry)=>{
-                    if(!err&&text_entry){
-                        if(text_entry.isPassword){
-                            decodedText = password_decipher.update(text_entry.encodedText, 'hex', 'utf8') + password_decipher.final('utf8');
-                            return res.json({
-                                success:true,
-                                message:decodedText
-                            });
-                        }
-                    }else{
-                        return res.json({
-                            success:false,
-                            message:"The document you are trying to access may have been expired"
-                        });
-                    }
-                })
-            
-
+    console.log(tid);
+    var passwordstring = crypto
+      .createHash("sha256")
+      .update(String(password))
+      .digest("base64")
+      .substr(0, 32);
+    var password_decipher = crypto.createDecipheriv(
+      "aes-256-cbc",
+      passwordstring,
+      ivstring
+    );
+    textEntry
+      .findOne({ _id: tid, password: password })
+      .exec((err, text_entry) => {
+        if (!err && text_entry) {
+          if (text_entry.isPassword) {
+            decodedText =
+              password_decipher.update(text_entry.encodedText, "hex", "utf8") +
+              password_decipher.final("utf8");
+            return res.json({
+              success: true,
+              message: decodedText,
+            });
+          }
+        } else {
+          return res.json({
+            success: false,
+            message:
+              "The document you are trying to access may have been expired",
+          });
+        }
+      });
   };
 
