@@ -249,7 +249,7 @@ exports.tapLink = (req,res) =>{
     );
 
     const tid =
-      link_decipher.update(req.params.tid, "hex", "utf8") +
+      link_decipher.update(req.body.tid, "hex", "utf8") +
       link_decipher.final("utf8");
     console.log(tid);
     var passwordstring = crypto
