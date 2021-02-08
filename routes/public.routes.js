@@ -5,11 +5,13 @@ const router = express.Router();
 const {
   generateLink,
   tapLink,
-  openLinkWithPassword
-} = require('../controllers/public.controller');
+  openLinkWithPassword,
+  updateLink,
+} = require("../controllers/public.controller");
 
 
 router.post("/public/generateLink",generateLink);
+router.post("/public/updateLink", updateLink);
 router.get("/public/tapLink/:tid",tapLink);
 router.post("/public/openLink/",openLinkWithPassword);
 

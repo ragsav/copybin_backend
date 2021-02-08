@@ -35,7 +35,7 @@ var ivstring = iv.toString("hex").slice(0, 16);
 
 
 exports.generateLink = (req, res) => {
-    const {text,expiry,isPassword,password} = req.body
+    const { text, expiry, isPassword, password, editable } = req.body;
     console.log(req.body);
     var encodedText
     if(isPassword){
@@ -62,11 +62,12 @@ exports.generateLink = (req, res) => {
     let milliseconds= expiry * 1000; // 10 seconds = 10000 milliseconds
     timeObject = new Date(timeObject.getTime() + milliseconds);
     var textLink = new textEntry({
-        encodedText,
-        isPassword,
-        password,
-        expiry:timeObject
-      });
+      encodedText,
+      isPassword,
+      password,
+      editable,
+      expiry: timeObject,
+    });
     
 
     
@@ -92,6 +93,74 @@ exports.generateLink = (req, res) => {
         }
     });
   };
+
+
+exports.updateLink = (req, res) => {
+  const { text, isPassword, password, tid } = req.body;
+
+  var encodedText;
+  if (isPassword) {
+    if (passwordSchema.validate(password)) {
+      var passwordstring = crypto
+        .createHash("sha256")
+        .update(String(password))
+        .digest("base64")
+        .substr(0, 32);
+      var password_cipher = crypto.createCipheriv(
+        "aes-256-cbc",
+        passwordstring,
+        ivstring
+      );
+      encodedText =
+        password_cipher.update(text, "utf8", "hex") +
+        password_cipher.final("hex");
+    } else {
+      var rules_unfollowed = passwordSchema.validate(password, { list: true });
+      return res.json({
+        success: false,
+        message: rules_unfollowed,
+      });
+    }
+  } else {
+    var default_cipher = crypto.createCipheriv(
+      "aes-256-cbc",
+      keystring,
+      ivstring
+    );
+    encodedText =
+      default_cipher.update(text, "utf8", "hex") + default_cipher.final("hex");
+  }
+
+  textEntry.updateOne(
+    { _id: tid, password: password, isPassword: true, editable: true },
+    { encodedText: "" },
+    function (err, docs) {
+      if (err) {
+        console.log(err);
+      } else {
+        return res.json({
+          success: true,
+          message: "Text updated",
+        });
+      }
+    }
+  );
+  textEntry.updateOne(
+    { _id: tid, isPassword: false, editable: true },
+    { encodedText: "" },
+    function (err, docs) {
+      if (err) {
+        console.log(err);
+      } else {
+        return res.json({
+          success: true,
+          message: "Text updated",
+        });
+      }
+    }
+  );
+};
+
 
 exports.tapLink = (req,res) =>{
     var link_decipher = crypto.createDecipheriv(
