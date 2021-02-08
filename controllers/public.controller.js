@@ -237,6 +237,8 @@ exports.tapLink = (req,res) =>{
     });
 }
   exports.openLinkWithPassword = (req, res) => {
+      const { isPassword, password, tid } = req.body;
+
       var linkKeyString = crypto
         .createHash("sha256")
         .update(String(link_key))
@@ -248,9 +250,8 @@ exports.tapLink = (req,res) =>{
       ivstring
     );
 
-    const tid =
-      link_decipher.update(req.body.tid, "hex", "utf8") +
-      link_decipher.final("utf8");
+    const tid2 =
+      link_decipher.update(tid, "hex", "utf8") + link_decipher.final("utf8");
     console.log(tid);
     var passwordstring = crypto
       .createHash("sha256")
@@ -263,7 +264,7 @@ exports.tapLink = (req,res) =>{
       ivstring
     );
     textEntry
-      .findOne({ _id: tid, password: password })
+      .findOne({ _id: tid2, password: password })
       .exec((err, text_entry) => {
         if (!err && text_entry) {
           if (text_entry.isPassword) {
