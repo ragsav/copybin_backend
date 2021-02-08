@@ -21,12 +21,8 @@ const base_url = "https://copybinback.herokuapp.com/api/public/tapLink/";
 const iv = "whfowihohrrovhhvjqsvhdjjadsllv"
 const key = "wlklncwlcnlbvvlrnlnvlkevlsnskvbevldnlsnlndlvvnlsbvevlnlnsv"
 const link_key = "wjebcbwcbkweblkcnovldheojlkbwrro";
-var keystring = crypto.createHash('sha256').update(String(key)).digest('base64').substr(0, 32);
-var linkKeyString = crypto
-  .createHash("sha256")
-  .update(String(link_key))
-  .digest("base64")
-  .substr(0, 32);
+
+
 var ivstring = iv.toString("hex").slice(0, 16);
   
 
@@ -51,6 +47,11 @@ exports.generateLink = (req, res) => {
             })
         }    
     }else{
+        var keystring = crypto
+          .createHash("sha256")
+          .update(String(key))
+          .digest("base64")
+          .substr(0, 32);
         var default_cipher = crypto.createCipheriv(
           "aes-256-cbc",
           keystring,
@@ -78,6 +79,11 @@ exports.generateLink = (req, res) => {
                 message:err
             })
         }else{
+            var linkKeyString = crypto
+              .createHash("sha256")
+              .update(String(link_key))
+              .digest("base64")
+              .substr(0, 32);
             var link_cipher = crypto.createCipheriv(
               "aes-256-cbc",
               linkKeyString,
@@ -122,6 +128,11 @@ exports.updateLink = (req, res) => {
       });
     }
   } else {
+      var keystring = crypto
+        .createHash("sha256")
+        .update(String(key))
+        .digest("base64")
+        .substr(0, 32);
     var default_cipher = crypto.createCipheriv(
       "aes-256-cbc",
       keystring,
@@ -175,6 +186,11 @@ exports.updateLink = (req, res) => {
 
 
 exports.tapLink = (req,res) =>{
+    var linkKeyString = crypto
+      .createHash("sha256")
+      .update(String(link_key))
+      .digest("base64")
+      .substr(0, 32);
     var link_decipher = crypto.createDecipheriv(
       "aes-256-cbc",
       linkKeyString,
@@ -193,6 +209,11 @@ exports.tapLink = (req,res) =>{
             message: "please enter password",
           });
         } else {
+            var keystring = crypto
+              .createHash("sha256")
+              .update(String(key))
+              .digest("base64")
+              .substr(0, 32);
             var default_decipher = crypto.createDecipheriv(
               "aes-256-cbc",
               keystring,
@@ -216,6 +237,11 @@ exports.tapLink = (req,res) =>{
     });
 }
   exports.openLinkWithPassword = (req, res) => {
+      var linkKeyString = crypto
+        .createHash("sha256")
+        .update(String(link_key))
+        .digest("base64")
+        .substr(0, 32);
     var link_decipher = crypto.createDecipheriv(
       "aes-256-cbc",
       linkKeyString,
