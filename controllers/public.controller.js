@@ -103,7 +103,19 @@ exports.generateLink = (req, res) => {
 
 exports.updateLink = (req, res) => {
   const { text, isPassword, password, tid } = req.body;
+var linkKeyString = crypto
+  .createHash("sha256")
+  .update(String(link_key))
+  .digest("base64")
+  .substr(0, 32);
+var link_decipher = crypto.createDecipheriv(
+  "aes-256-cbc",
+  linkKeyString,
+  ivstring
+);
 
+const tid2 =
+  link_decipher.update(tid, "hex", "utf8") + link_decipher.final("utf8");
   var encodedText;
   if (isPassword) {
     if (passwordSchema.validate(password)) {
@@ -142,46 +154,44 @@ exports.updateLink = (req, res) => {
       default_cipher.update(text, "utf8", "hex") + default_cipher.final("hex");
   }
 
-  textEntry.updateOne(
-    { _id: tid, password: password, isPassword: true, editable: true },
-    { encodedText: "" },
-    function (err, docs) {
-      if (!err && docs) {
-        return res.json({
-          success: true,
-          message: "Text updated",
-        });
+  textEntry
+    .findOne({ _id: tid2,editable:true})
+    .exec((err, text_entry) => {
+      if (!err && text_entry) {
+        if ((text_entry.isPassword&&text_entry.password===password)||(text_entry.isPassword===false)) {
+          text_entry.text=encodedText
+          textEntry.updateOne({_id:tid2},text_entry).exec((err,updated_entry)=>{
+              if(!err&&updated_entry){
+                  return res.json({
+                    success: true,
+                    message: "Updated text",
+                  });
+              }else{
+                  return res.json({
+                    success: false,
+                    message: "Something went wrong",
+                  });
+              }
+          })
+        }
+        else{
+            return res.json({
+              success: false,
+              message:
+                "Incorrect password",
+            });
+        }
       } else {
-          return res.json({
-            success: false,
-            message: err,
-          });
-        console.log(err);
-      }
-    }
-  );
-  textEntry.updateOne(
-    { _id: tid, isPassword: false, editable: true },
-    { encodedText: "" },
-    function (err, docs) {
-      if (!err && docs) {
         return res.json({
-          success: true,
-          message: "Text updated",
+          success: false,
+          message:
+            "The document you are trying to access may have been expired",
         });
-      } else {
-          return res.json({
-            success: false,
-            message: err,
-          });
-        console.log(err);
       }
-    }
-  );
-  return res.json({
-    success: false,
-    message: "Text not editable",
-  });
+    });
+  
+  
+  
 };
 
 
