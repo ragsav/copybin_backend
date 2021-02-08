@@ -237,6 +237,7 @@ exports.tapLink = (req,res) =>{
           return res.json({
             success: true,
             message: decodedText,
+            editable: text.editable,
           });
         }
       } else {
@@ -286,6 +287,7 @@ exports.tapLink = (req,res) =>{
             return res.json({
               success: true,
               message: decodedText,
+              editable: text_entry.editable,
             });
           }
         } else {
