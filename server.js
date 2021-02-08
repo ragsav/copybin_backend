@@ -24,11 +24,7 @@ if (process.env.NODE_ENV === "development") {
   app.use(morgan("dev"));
 }
 
-  app.use(
-    cors({
-      origin: process.env.CLIENT_URL,
-    })
-  );
+  app.use(cors());
 
 app.use("/api", publicRouter);
 
