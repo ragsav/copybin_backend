@@ -94,7 +94,7 @@ exports.generateLink = (req, res) => {
               link_cipher.final("hex");
             return res.json({
               success: true,
-              url: base_url + encodedLink,
+              url: "https://copybin-5de5c.web.app/" + encodedLink,
             });
         }
     });
