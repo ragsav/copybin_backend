@@ -17,7 +17,7 @@ passwordSchema
 .has().not().symbols()                                  
 .has().not().spaces();
 
-const base_url = "https://copybinback.herokuapp.com/api/public/tapLink/";
+const base_url = "https://copybin-5de5c.web.app/";
 const iv = "whfowihohrrovhhvjqsvhdjjadsllv"
 const key = "wlklncwlcnlbvvlrnlnvlkevlsnskvbevldnlsnlndlvvnlsbvevlnlnsv"
 const link_key = "wjebcbwcbkweblkcnovldheojlkbwrro";
