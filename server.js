@@ -16,7 +16,39 @@ connectDB();
 const app = express();
 
 app.use(bodyParser.json());
+app.use(function (req, res, next) {
+  var allowedDomains = [
+    "http://localhost:3000",
+    "https://copybin-5de5c.web.app",
+  ];
+  var origin = req.headers.origin;
+  res.setHeader("Access-Control-Allow-Origin", origin);
+  res.setHeader(
+    "Access-Control-Allow-Methods",
+    "GET, POST, OPTIONS, PUT, PATCH, DELETE"
+  );
+  res.setHeader(
+    "Access-Control-Allow-Headers",
+    "X-Requested-With,content-type, Accept"
+  );
+  res.setHeader("Access-Control-Allow-Credentials", true);
 
+  // if (allowedDomains.indexOf(origin) > -1) {
+  //   res.setHeader("Access-Control-Allow-Origin", origin);
+  // }
+
+  // res.setHeader(
+  //   "Access-Control-Allow-Methods",
+  //   "GET, POST, OPTIONS, PUT, PATCH, DELETE"
+  // );
+  // res.setHeader(
+  //   "Access-Control-Allow-Headers",
+  //   "X-Requested-With,content-type, Accept"
+  // );
+  // res.setHeader("Access-Control-Allow-Credentials", true);
+
+  next();
+});
 const publicRouter = require("./routes/public.routes");
 
 // Dev Loggin Middleware
@@ -29,28 +61,7 @@ const publicRouter = require("./routes/public.routes");
 //       origin: process.env.CU,
 //     })
 //   );
-app.use(function (req, res, next) {
-  var allowedDomains = [
-    "http://localhost:3000",
-    "https://copybin-5de5c.web.app/",
-  ];
-  var origin = req.headers.origin;
-  if (allowedDomains.indexOf(origin) > -1) {
-    res.setHeader("Access-Control-Allow-Origin", origin);
-  }
 
-  res.setHeader(
-    "Access-Control-Allow-Methods",
-    "GET, POST, OPTIONS, PUT, PATCH, DELETE"
-  );
-  res.setHeader(
-    "Access-Control-Allow-Headers",
-    "X-Requested-With,content-type, Accept"
-  );
-  res.setHeader("Access-Control-Allow-Credentials", true);
-
-  next();
-});
 app.use("/api", publicRouter);
 
 app.use((req, res) => {
