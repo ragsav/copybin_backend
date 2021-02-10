@@ -16,51 +16,51 @@ connectDB();
 const app = express();
 
 app.use(bodyParser.json());
-app.use(function (req, res, next) {
-  var allowedDomains = [
-    "http://localhost:3000",
-    "https://copybin-5de5c.web.app",
-  ];
-  var origin = req.headers.origin;
-  res.setHeader("Access-Control-Allow-Origin", origin);
-  res.setHeader(
-    "Access-Control-Allow-Methods",
-    "GET, POST, OPTIONS, PUT, PATCH, DELETE"
-  );
-  res.setHeader(
-    "Access-Control-Allow-Headers",
-    "X-Requested-With,content-type, Accept"
-  );
-  res.setHeader("Access-Control-Allow-Credentials", true);
+// app.use(function (req, res, next) {
+//   var allowedDomains = [
+//     "http://localhost:3000",
+//     "https://copybin-5de5c.web.app",
+//   ];
+//   var origin = req.headers.origin;
+//   res.setHeader("Access-Control-Allow-Origin", origin);
+//   res.setHeader(
+//     "Access-Control-Allow-Methods",
+//     "GET, POST, OPTIONS, PUT, PATCH, DELETE"
+//   );
+//   res.setHeader(
+//     "Access-Control-Allow-Headers",
+//     "X-Requested-With,content-type, Accept"
+//   );
+//   res.setHeader("Access-Control-Allow-Credentials", true);
 
-  // if (allowedDomains.indexOf(origin) > -1) {
-  //   res.setHeader("Access-Control-Allow-Origin", origin);
-  // }
+//   // if (allowedDomains.indexOf(origin) > -1) {
+//   //   res.setHeader("Access-Control-Allow-Origin", origin);
+//   // }
 
-  // res.setHeader(
-  //   "Access-Control-Allow-Methods",
-  //   "GET, POST, OPTIONS, PUT, PATCH, DELETE"
-  // );
-  // res.setHeader(
-  //   "Access-Control-Allow-Headers",
-  //   "X-Requested-With,content-type, Accept"
-  // );
-  // res.setHeader("Access-Control-Allow-Credentials", true);
+//   // res.setHeader(
+//   //   "Access-Control-Allow-Methods",
+//   //   "GET, POST, OPTIONS, PUT, PATCH, DELETE"
+//   // );
+//   // res.setHeader(
+//   //   "Access-Control-Allow-Headers",
+//   //   "X-Requested-With,content-type, Accept"
+//   // );
+//   // res.setHeader("Access-Control-Allow-Credentials", true);
 
-  next();
-});
+//   next();
+// });
 const publicRouter = require("./routes/public.routes");
 
 // Dev Loggin Middleware
-// if (process.env.NODE_ENV === "development") {
-//   app.use(morgan("dev"));
-// }
+if (process.env.NODE_ENV === "development") {
+  app.use(morgan("dev"));
+}
 
-//   app.use(
-//     cors({
-//       origin: process.env.CU,
-//     })
-//   );
+  app.use(
+    cors({
+      origin: process.env.CLIENT_URL,
+    })
+  );
 
 app.use("/api", publicRouter);
 
