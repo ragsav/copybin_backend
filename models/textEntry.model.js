@@ -5,6 +5,9 @@ const textEntry = new mongoose.Schema(
       type: String,
       required: true,
     },
+    tid: {
+      type: String,
+    },
     isPassword: {
       type: Boolean,
       required: true,

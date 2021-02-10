@@ -97,10 +97,10 @@ exports.generateLink = (req, res) => {
         message: err,
       });
     } else {
-      var encodedLink = encodeText(text_entry._id.toString(), link_key, iv);
+    //   var encodedLink = encodeText(text_entry._id.toString(), link_key, iv);
       return res.json({
         success: true,
-        url: "https://copybin-5de5c.web.app/" + encodedLink,
+        url: "https://copybin-5de5c.web.app/" + text_entry._id,
       });
     }
   });
@@ -109,13 +109,13 @@ exports.generateLink = (req, res) => {
 
 exports.updateLink = (req, res) => {
   const { text, isPassword, password, tid } = req.body;
-  var tid_decoded = decodeText(tid,link_key,iv)
+//   var tid_decoded = decodeText(tid,link_key,iv)
 
   var encodedText = isPassword===true?encodeText(text, password, iv):encodeText(text,key,iv) ;
 
 
   textEntry
-    .findOne({ _id: tid_decoded,editable:true})
+    .findOne({ _id: tid,editable:true})
     .exec((err, text_entry) => {
       if (!err && text_entry) {
         if ((text_entry.isPassword&&text_entry.password===password)||(text_entry.isPassword===false)) {
@@ -123,7 +123,7 @@ exports.updateLink = (req, res) => {
           
           textEntry
             .updateOne(
-              { _id: tid_decoded },
+              { _id: tid },
               { encodedText: text_entry.public ? text : encodedText }
             )
             .exec((err, updated_entry) => {
@@ -162,9 +162,9 @@ exports.updateLink = (req, res) => {
 
 
 exports.tapLink = (req,res) =>{
-    var tid_decoded = decodeText(req.params.tid, link_key, iv);
-    console.log(tid_decoded);
-    textEntry.findOne({ _id: tid_decoded }).exec((err, text_entry) => {
+    // var tid_decoded = decodeText(req.params.tid, link_key, iv);
+    console.log(req.params.tid);
+    textEntry.findOne({ _id: req.params.tid }).exec((err, text_entry) => {
       if (!err && text_entry) {
         if (text_entry.isPassword) {
           return res.json({
@@ -175,9 +175,7 @@ exports.tapLink = (req,res) =>{
           var decodedText =
             text_entry.public === true
               ? text_entry.encodedText
-              : decodeText(text_entry.encodedText,key,iv);
-
-          
+              : decodeText(text_entry.encodedText, key, iv);
 
           return res.json({
             success: true,
@@ -196,12 +194,12 @@ exports.tapLink = (req,res) =>{
 }
   exports.openLinkWithPassword = (req, res) => {
     const { isPassword, password, tid } = req.body;
-    var tid_decoded = decodeText(tid, link_key, iv);
-    console.log(tid_decoded);
+    // var tid_decoded = decodeText(tid, link_key, iv);
+    console.log(tid);
 
     
     textEntry
-      .findOne({ _id: tid_decoded, password: password ,isPassword:true})
+      .findOne({ _id: tid, password: password ,isPassword:true})
       .exec((err, text_entry) => {
         if (!err && text_entry) {
           var decodedText =
