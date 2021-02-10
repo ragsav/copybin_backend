@@ -23,7 +23,7 @@ router.post("/public/updateLink", validateText, validatePassword, updateLink);
 router.get("/public/tapLink/:tid",tapLink);
 router.post(
   "/public/openLink/",
-  validateText,
+
   validatePassword,
   openLinkWithPassword
 );
