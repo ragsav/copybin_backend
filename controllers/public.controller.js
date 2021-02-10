@@ -226,7 +226,8 @@ exports.tapLink = (req,res) =>{
 
   exports.getLatestPosts = (req, res) => {
     textEntry
-      .find({ isPassword: false })
+      .find({ public: true })
+      .select(["-password"])
 
       .sort({ updatedAt: -1 })
       .limit(20)
