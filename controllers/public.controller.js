@@ -300,3 +300,25 @@ exports.tapLink = (req,res) =>{
       });
   };
 
+  exports.getLatestPosts = (req, res) => {
+    textEntry
+      .find({ isPassword: false })
+
+      .sort({ updatedAt: -1 })
+      .limit(20)
+      .exec(function (err, posts) {
+        if (!err && posts) {
+          return res.json({
+            success: true,
+            message: posts,
+          });
+        } else {
+          return res.json({
+            success: false,
+            message: error,
+          });
+        }
+        // `posts` will be of length 20
+      });
+  };
+
