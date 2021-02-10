@@ -10,11 +10,23 @@ const {
   getLatestPosts,
 } = require("../controllers/public.controller");
 
+const { validatePassword, validateText } = require("../controllers/validation");
 
-router.post("/public/generateLink",generateLink);
-router.post("/public/updateLink", updateLink);
+
+router.post(
+  "/public/generateLink",
+  validateText,
+  validatePassword,
+  generateLink
+);
+router.post("/public/updateLink", validateText, validatePassword, updateLink);
 router.get("/public/tapLink/:tid",tapLink);
-router.post("/public/openLink/",openLinkWithPassword);
+router.post(
+  "/public/openLink/",
+  validateText,
+  validatePassword,
+  openLinkWithPassword
+);
 router.get("/public/getLatestPosts", getLatestPosts);
 
 

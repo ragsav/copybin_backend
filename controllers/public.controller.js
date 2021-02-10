@@ -10,12 +10,7 @@ require("dotenv").config({
   });
 
 
-var passwordSchema = new passwordValidator();
-passwordSchema
-.is().min(8)                                    
-.is().max(8)
-.has().not().symbols()                                  
-.has().not().spaces();
+
 
 const base_url = "https://copybin-5de5c.web.app/";
 const iv = "whfowihohrrovhhvjqsvhdjjadsllv"
@@ -23,145 +18,114 @@ const key = "wlklncwlcnlbvvlrnlnvlkevlsnskvbevldnlsnlndlvvnlsbvevlnlnsv"
 const link_key = "wjebcbwcbkweblkcnovldheojlkbwrro";
 
 
-var ivstring = iv.toString("hex").slice(0, 16);
   
 
 
 
+function encodeText(text,key,iv){
+    var ivstring = iv.toString("hex").slice(0, 16);
+    var key_string = crypto
+      .createHash("sha256")
+      .update(String(key))
+      .digest("base64")
+      .substr(0, 32);
+    var cipher = crypto.createCipheriv(
+      "aes-256-cbc",
+      key_string,
+      ivstring
+    );
+    encodedString =
+      cipher.update(text, "utf8", "hex") +
+      cipher.final("hex");
+    return encodedString
+}
 
+function decodeText(text, key, iv) {
+  var ivstring = iv.toString("hex").slice(0, 16);
+   var key_string = crypto
+     .createHash("sha256")
+     .update(String(key))
+     .digest("base64")
+     .substr(0, 32);
+  var decipher = crypto.createDecipheriv(
+    "aes-256-cbc",
+    key_string,
+    ivstring
+  );
+
+  decodedText =
+    decipher.update(text, "hex", "utf8") + decipher.final("utf8");
+
+    return decodedText
+}
 
 exports.generateLink = (req, res) => {
-    const { text, expiry, isPassword, password, editable } = req.body;
-    console.log(req.body);
-    var encodedText
-    if(isPassword){
-        if(passwordSchema.validate(password)){
-            var passwordstring = crypto.createHash('sha256').update(String(password)).digest('base64').substr(0, 32);
-            var password_cipher = crypto.createCipheriv('aes-256-cbc',passwordstring,ivstring);  
-            encodedText = password_cipher.update(text, 'utf8', 'hex') + password_cipher.final('hex');
-        }else{
-            var rules_unfollowed = passwordSchema.validate(password, { list: true })
-            return res.json({
-                success:false,
-                message:rules_unfollowed
-            })
-        }    
-    }else{
-        var keystring = crypto
-          .createHash("sha256")
-          .update(String(key))
-          .digest("base64")
-          .substr(0, 32);
-        var default_cipher = crypto.createCipheriv(
-          "aes-256-cbc",
-          keystring,
-          ivstring
-        );
-        encodedText = default_cipher.update(text,'utf8','hex')+default_cipher.final('hex');
-    }
-    let timeObject = new Date();
-    let milliseconds= expiry * 1000; // 10 seconds = 10000 milliseconds
-    timeObject = new Date(timeObject.getTime() + milliseconds);
-    var textLink = new textEntry({
-      encodedText,
-      isPassword,
-      password,
-      editable,
-      expiry: timeObject,
-    });
-    
+  const {
+    text,
+    expiry,
+    isPassword,
+    password,
+    editable,
+    public,
+    title,
+  } = req.body;
 
-    
-    textLink.save((err,link)=>{
-        if(err&&!link){
-            return res.json({
-                success:false,
-                message:err
-            })
-        }else{
-            var linkKeyString = crypto
-              .createHash("sha256")
-              .update(String(link_key))
-              .digest("base64")
-              .substr(0, 32);
-            var link_cipher = crypto.createCipheriv(
-              "aes-256-cbc",
-              linkKeyString,
-              ivstring
-            );
-            var encodedLink =
-              link_cipher.update(link._id.toString(), "utf8", "hex") +
-              link_cipher.final("hex");
-            return res.json({
-              success: true,
-              url: "https://copybin-5de5c.web.app/" + encodedLink,
-            });
-        }
-    });
-  };
+  console.log(req.body);
+  var encodedText =
+    isPassword === true
+      ? encodeText(text, password, iv)
+      : encodeText(text, key, iv);
+
+      
+  let timeObject = new Date();
+  let milliseconds = expiry * 1000; // 10 seconds = 10000 milliseconds
+  timeObject = new Date(timeObject.getTime() + milliseconds);
+  var textLink = new textEntry({
+    encodedText:public===true?text:encodedText,
+    isPassword,
+    password,
+    expiry: timeObject,
+    editable,
+    public,
+    title,
+  });
+
+  textLink.save((err, text_entry) => {
+    if (err && !text_entry) {
+      return res.json({
+        success: false,
+        message: err,
+      });
+    } else {
+      var encodedLink = encodeText(text_entry._id.toString(), link_key, iv);
+      return res.json({
+        success: true,
+        url: "https://copybin-5de5c.web.app/" + encodedLink,
+      });
+    }
+  });
+};;
 
 
 exports.updateLink = (req, res) => {
   const { text, isPassword, password, tid } = req.body;
-var linkKeyString = crypto
-  .createHash("sha256")
-  .update(String(link_key))
-  .digest("base64")
-  .substr(0, 32);
-var link_decipher = crypto.createDecipheriv(
-  "aes-256-cbc",
-  linkKeyString,
-  ivstring
-);
+  var tid_decoded = decodeText(tid,link_key,iv)
 
-const tid2 =
-  link_decipher.update(tid, "hex", "utf8") + link_decipher.final("utf8");
-  var encodedText;
-  if (isPassword) {
-    if (passwordSchema.validate(password)) {
-      var passwordstring = crypto
-        .createHash("sha256")
-        .update(String(password))
-        .digest("base64")
-        .substr(0, 32);
-      var password_cipher = crypto.createCipheriv(
-        "aes-256-cbc",
-        passwordstring,
-        ivstring
-      );
-      encodedText =
-        password_cipher.update(text, "utf8", "hex") +
-        password_cipher.final("hex");
-    } else {
-      var rules_unfollowed = passwordSchema.validate(password, { list: true });
-      return res.json({
-        success: false,
-        message: rules_unfollowed,
-      });
-    }
-  } else {
-      var keystring = crypto
-        .createHash("sha256")
-        .update(String(key))
-        .digest("base64")
-        .substr(0, 32);
-    var default_cipher = crypto.createCipheriv(
-      "aes-256-cbc",
-      keystring,
-      ivstring
-    );
-    encodedText =
-      default_cipher.update(text, "utf8", "hex") + default_cipher.final("hex");
-  }
+  var encodedText = isPassword===true?encodeText(text, password, iv):encodeText(text,key,iv) ;
+
 
   textEntry
-    .findOne({ _id: tid2,editable:true})
+    .findOne({ _id: tid_decoded,editable:true})
     .exec((err, text_entry) => {
       if (!err && text_entry) {
         if ((text_entry.isPassword&&text_entry.password===password)||(text_entry.isPassword===false)) {
-          text_entry.text=encodedText
+            
+          
           textEntry
-            .updateOne({ _id: tid2 }, { encodedText })
+            .updateOne(
+              { _id: tid_decoded },
+              { encodedText: text_entry.public ? text : encodedText }
+            )
             .exec((err, updated_entry) => {
               if (!err && updated_entry) {
                 return res.json({
@@ -187,7 +151,7 @@ const tid2 =
         return res.json({
           success: false,
           message:
-            "The document you are trying to access may have been expired",
+            "The document is not editable",
         });
       }
     });
@@ -198,46 +162,27 @@ const tid2 =
 
 
 exports.tapLink = (req,res) =>{
-    var linkKeyString = crypto
-      .createHash("sha256")
-      .update(String(link_key))
-      .digest("base64")
-      .substr(0, 32);
-    var link_decipher = crypto.createDecipheriv(
-      "aes-256-cbc",
-      linkKeyString,
-      ivstring
-    );
-
-    const tid =
-      link_decipher.update(req.params.tid, "hex", "utf8") +
-      link_decipher.final("utf8");
-    console.log(tid)
-    textEntry.findOne({ _id: tid }).exec((err, text) => {
-      if (!err && text) {
-        if (text.isPassword) {
+    var tid_decoded = decodeText(req.params.tid, link_key, iv);
+    console.log(tid_decoded);
+    textEntry.findOne({ _id: tid_decoded }).exec((err, text_entry) => {
+      if (!err && text_entry) {
+        if (text_entry.isPassword) {
           return res.json({
             success: true,
             message: "please enter password",
           });
         } else {
-            var keystring = crypto
-              .createHash("sha256")
-              .update(String(key))
-              .digest("base64")
-              .substr(0, 32);
-            var default_decipher = crypto.createDecipheriv(
-              "aes-256-cbc",
-              keystring,
-              ivstring
-            );
-          decodedText =
-            default_decipher.update(text.encodedText, "hex", "utf8") +
-            default_decipher.final("utf8");
+          var decodedText =
+            text_entry.public === true
+              ? text_entry.encodedText
+              : decodeText(text_entry.encodedText,key,iv);
+
+          
+
           return res.json({
             success: true,
             message: decodedText,
-            editable: text.editable,
+            editable: text_entry.editable,
           });
         }
       } else {
@@ -250,51 +195,30 @@ exports.tapLink = (req,res) =>{
     });
 }
   exports.openLinkWithPassword = (req, res) => {
-      const { isPassword, password, tid } = req.body;
+    const { isPassword, password, tid } = req.body;
+    var tid_decoded = decodeText(tid, link_key, iv);
+    console.log(tid_decoded);
 
-      var linkKeyString = crypto
-        .createHash("sha256")
-        .update(String(link_key))
-        .digest("base64")
-        .substr(0, 32);
-    var link_decipher = crypto.createDecipheriv(
-      "aes-256-cbc",
-      linkKeyString,
-      ivstring
-    );
-
-    const tid2 =
-      link_decipher.update(tid, "hex", "utf8") + link_decipher.final("utf8");
-    console.log(tid2);
-    var passwordstring = crypto
-      .createHash("sha256")
-      .update(String(password))
-      .digest("base64")
-      .substr(0, 32);
-    var password_decipher = crypto.createDecipheriv(
-      "aes-256-cbc",
-      passwordstring,
-      ivstring
-    );
+    
     textEntry
-      .findOne({ _id: tid2, password: password })
+      .findOne({ _id: tid_decoded, password: password ,isPassword:true})
       .exec((err, text_entry) => {
         if (!err && text_entry) {
-          if (text_entry.isPassword) {
-            decodedText =
-              password_decipher.update(text_entry.encodedText, "hex", "utf8") +
-              password_decipher.final("utf8");
-            return res.json({
-              success: true,
-              message: decodedText,
-              editable: text_entry.editable,
-            });
-          }
+          var decodedText =
+            text_entry.public === true
+              ? text_entry.encodedText
+              : decodeText(text_entry.encodedText, password, iv);
+
+          return res.json({
+            success: true,
+            message: decodedText,
+            editable: text_entry.editable,
+          });
         } else {
           return res.json({
             success: false,
             message:
-              "The document you are trying to access may have been expired",
+              "The document you are trying to access may have been expired or enter correct password",
           });
         }
       });

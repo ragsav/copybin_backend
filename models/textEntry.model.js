@@ -20,6 +20,14 @@ const textEntry = new mongoose.Schema(
       type: Boolean,
       default: false,
     },
+    public: {
+      type: Boolean,
+      default: false,
+    },
+    title: {
+      type: String,
+      default: "No title",
+    },
     // createdAt: { type: Date, expires:600, default: Date.now },
   },
   {
