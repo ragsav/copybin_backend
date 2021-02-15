@@ -100,7 +100,7 @@ exports.generateLink = (req, res) => {
     //   var encodedLink = encodeText(text_entry._id.toString(), link_key, iv);
       return res.json({
         success: true,
-        url: "https://copybin-5de5c.web.app/" + text_entry._id,
+        url: base_url + text_entry._id,
       });
     }
   });
