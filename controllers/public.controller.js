@@ -100,7 +100,7 @@ exports.generateLink = (req, res) => {
     //   var encodedLink = encodeText(text_entry._id.toString(), link_key, iv);
       return res.json({
         success: true,
-        url: base_url + text_entry._id,
+        url: base_url + "viewer/" + text_entry._id,
       });
     }
   });
