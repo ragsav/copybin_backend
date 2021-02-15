@@ -59,6 +59,10 @@ function decodeText(text, key, iv) {
     return decodedText
 }
 
+exports.encryptFile = (req, res) => {
+  // const {password,file} = req.body;
+  console.log(req);
+};
 exports.generateLink = (req, res) => {
   const {
     text,
