@@ -34,9 +34,8 @@ function encodeText(text,key,iv){
       key_string,
       ivstring
     );
-    encodedString =
-      cipher.update(text, "utf8", "hex") +
-      cipher.final("hex");
+    var encodedString =
+      cipher.update(text, "utf8", "hex") + cipher.final("hex");
     return encodedString
 }
 
@@ -53,14 +52,15 @@ function decodeText(text, key, iv) {
     ivstring
   );
 
-  decodedText =
-    decipher.update(text, "hex", "utf8") + decipher.final("utf8");
+   var decodedText =
+     decipher.update(text, "hex", "utf8") + decipher.final("utf8");
 
     return decodedText
 }
 
-exports.encryptFile = (req, res) => {
-  // const {password,file} = req.body;
+exports.encrypt_decrypt = (req, res) => {
+  const { password, file } = req.body;
+
   console.log(req);
 };
 exports.generateLink = (req, res) => {
