@@ -7,7 +7,7 @@ const textEntry = require("./models/textEntry.model");
 const schedule = require('node-schedule');
 // Config dotev
 require("dotenv").config({
-  path: "./config/config.env",
+  path: "./config/.env",
 });
 
 // config database
