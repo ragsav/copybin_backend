@@ -6,7 +6,7 @@ const passwordValidator = require('password-validator');
 // const {bin2String,string2Bin} = require("../helpers/byteDataUtility")
 const crypto = require('crypto');
 require("dotenv").config({
-  path: "./config/.env",
+  path: "./config/config.env",
 });
 
 
