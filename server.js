@@ -61,7 +61,11 @@ if (process.env.NODE_ENV === "development") {
   //     origin: process.env.CU,
   //   })
   // );
-var allowedDomains = [process.env.CLIENT_URL, "http://localhost:3000"];
+var allowedDomains = [
+  process.env.CLIENT_URL,
+  "http://localhost:3000",
+  "https://codebin4u.web.app",
+];
 app.use(
   cors({
     origin: function (origin, callback) {
