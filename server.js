@@ -64,7 +64,7 @@ if (process.env.NODE_ENV === "development") {
 var allowedDomains = [
   process.env.CLIENT_URL,
   "http://localhost:3000",
-  "https://codebin4u.web.app",
+  "https://copybin4u.web.app",
 ];
 app.use(
   cors({
