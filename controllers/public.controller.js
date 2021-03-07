@@ -183,7 +183,12 @@ exports.tapLink = (req,res) =>{
 
           return res.json({
             success: true,
-            message: decodedText,
+            message: {
+              text: decodedText,
+              title: text_entry.title,
+              createdAt: text_entry.createdAt,
+              updatedAt: text_entry.updatedAt,
+            },
             editable: text_entry.editable,
           });
         }
@@ -213,7 +218,12 @@ exports.tapLink = (req,res) =>{
 
           return res.json({
             success: true,
-            message: decodedText,
+            message: {
+              text: decodedText,
+              title: text_entry.title,
+              createdAt: text_entry.createdAt,
+              updatedAt: text_entry.updatedAt,
+            },
             editable: text_entry.editable,
           });
         } else {
