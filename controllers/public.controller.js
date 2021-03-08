@@ -12,7 +12,7 @@ require("dotenv").config({
 
 
 
-const base_url = "https://copybin-5de5c.web.app/";
+const base_url = "https://copybin4u.web.app/";
 const iv = "whfowihohrrovhhvjqsvhdjjadsllv"
 const key = "wlklncwlcnlbvvlrnlnvlkevlsnskvbevldnlsnlndlvvnlsbvevlnlnsv"
 const link_key = "wjebcbwcbkweblkcnovldheojlkbwrro";
